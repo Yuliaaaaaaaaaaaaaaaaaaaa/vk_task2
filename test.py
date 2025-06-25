@@ -143,14 +143,19 @@ def is_app_installed(app_name):
 
     return 'Не установлено'
 
+
 global app
-app = get_app_install_path('VK Teams') + 'vkteams.exe'
+app = get_app_install_path('VK Teams') + 'vkteams.exe' # это путь к приложению
 @pytest.mark.parametrize("app, expected_result", [
     ("VK Teams", 'Установлено')
 ])
 def test_is_app_installed(app, expected_result):
     assert is_app_installed(app) == expected_result
 
+'''
+Если приложение установлено, тест должен пройти.
+Тем самым мы проверим, установилось автоматически приложение или нет.
+'''
 
 
 @pytest.mark.parametrize("file, expected_result", [
@@ -158,3 +163,9 @@ def test_is_app_installed(app, expected_result):
 ])
 def test_compare_applications(file, expected_result):
     assert compare_applications(app, "VK Teams.lnk") == expected_result
+
+'''
+Мы побайтово сравниваем оригинальное приложение (то есть 100% корректное),
+с тем, что установилось. Если они совпадают, значит, что установка корректна.
+'''
+
