@@ -120,7 +120,7 @@ def get_app_install_path(app_name):
                         if app_name.lower() in display_name.lower():
                             try:
                                 install_location, _ = winreg.QueryValueEx(app_key, "InstallLocation")
-                                return install_location.replace("\\", "\\\\")  # Заменяем обратные слеши на двойные
+                                return install_location
                             except FileNotFoundError:
                                 pass
 
@@ -128,7 +128,7 @@ def get_app_install_path(app_name):
                                 display_icon, _ = winreg.QueryValueEx(app_key, "DisplayIcon")
                                 if "," in display_icon:
                                     display_icon = display_icon.split(",")[0]
-                                return display_icon.replace("\\", "\\\\") # Заменяем обратные слеши на двойные
+                                return display_icon
                             except FileNotFoundError:
                                 pass
 
@@ -191,7 +191,6 @@ def is_app_installed(app_name):
 
 global app
 app = get_app_install_path('VK Teams') + 'vkteams.exe' # это путь к приложению
-app1 = app.replace("\\\\", "\\")
 @pytest.mark.parametrize("app, expected_result", [
     ("VK Teams", 'Установлено')
 ])
@@ -220,7 +219,7 @@ def test_compare_applications(file, expected_result):
     (app, True)
 ])
 def test_is_app_in_autorun_registry(autostart, expected_result):
-    assert is_app_in_autorun_registry(app1) == expected_result
+    assert is_app_in_autorun_registry(app) == expected_result
 
 '''
 Проверяет, добавлено ли приложение в автозапуск через реестр Windows.
