@@ -3,6 +3,51 @@ import pytest
 import winreg  # Модуль только для Windows
 
 
+def is_app_in_autorun_registry(executable_path):
+    """Проверяет, добавлено ли приложение в автозапуск через реестр Windows."""
+    sub_key = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
+    app_name = 'VK Teams'
+    try:
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, sub_key)
+        i = 0
+        while True:
+            try:
+                name, value, _ = winreg.EnumValue(key, i)
+                if app_name == name and executable_path == value:
+                    return True
+                i += 1
+            except OSError:
+                break  # Больше нет значений
+
+    except FileNotFoundError:
+        pass
+
+    finally:
+        if key:
+            winreg.CloseKey(key)
+
+    try:
+        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, sub_key)
+        i = 0
+        while True:
+            try:
+                name, value, _ = winreg.EnumValue(key, i)
+                if app_name == name and executable_path == value:
+                    return True
+                i += 1
+            except OSError:
+                break  # Больше нет значений
+
+    except FileNotFoundError:
+        pass
+
+    finally:
+        if key:
+            winreg.CloseKey(key)
+
+    return False
+
+
 def compare_files_byte_by_byte(file1, file2):
     """Сравнивает два файла побайтово."""
     try:
@@ -146,6 +191,7 @@ def is_app_installed(app_name):
 
 global app
 app = get_app_install_path('VK Teams') + 'vkteams.exe' # это путь к приложению
+app1 = app.replace("\\\\", "\\")
 @pytest.mark.parametrize("app, expected_result", [
     ("VK Teams", 'Установлено')
 ])
@@ -169,3 +215,14 @@ def test_compare_applications(file, expected_result):
 с тем, что установилось. Если они совпадают, значит, что установка корректна.
 '''
 
+
+@pytest.mark.parametrize("autostart, expected_result", [
+    (app, True)
+])
+def test_is_app_in_autorun_registry(autostart, expected_result):
+    assert is_app_in_autorun_registry(app1) == expected_result
+
+'''
+Проверяет, добавлено ли приложение в автозапуск через реестр Windows.
+Если да, то тест пройден.
+'''
